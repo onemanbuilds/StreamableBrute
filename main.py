@@ -101,4 +101,4 @@ class Main:
 
 if __name__ == '__main__':
     main = Main()
-    threading = Thread(target=main.Scrape()).start()
+    threading = Thread(target=main.Scrape).start()
