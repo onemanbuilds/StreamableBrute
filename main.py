@@ -47,10 +47,19 @@ class Main:
     def __init__(self):
         self.SetTitle('One Man Builds Streamable Video Brute Tool')
         self.clear()
-        init()
+        title = Fore.YELLOW+"""
+                        
+                ____ ___ ____ ____ ____ _  _ ____ ___  _    ____    ___  ____ _  _ ___ ____ 
+                [__   |  |__/ |___ |__| |\/| |__| |__] |    |___    |__] |__/ |  |  |  |___ 
+                ___]  |  |  \ |___ |  | |  | |  | |__] |___ |___    |__] |  \ |__|  |  |___ 
+                                                                                            
+                        
+        """
+        print(title)
+        init(convert=True)
         self.ua = UserAgent()
-        self.use_proxy = int(input('[QUESTION] Would you like to use proxies [1] yes [0] no: '))
-        self.download_video = int(input('[QUESTION] Would you like to download videos [1] yes [0] no: '))
+        self.use_proxy = int(input(Fore.YELLOW+'['+Fore.WHITE+'>'+Fore.YELLOW+'] Would you like to use proxies [1] yes [0] no: '))
+        self.download_video = int(input(Fore.YELLOW+'['+Fore.WHITE+'>'+Fore.YELLOW+'] Would you like to download videos [1] yes [0] no: '))
         print('')
         self.header = headers = {'User-Agent':self.ua.random}
 
@@ -70,7 +79,7 @@ class Main:
                     response = requests.get(link,headers=self.header)
 
                 if response.status_code == 200:
-                    self.PrintText('GOOD',link,Fore.GREEN,Fore.WHITE)
+                    print(Fore.GREEN+'['+Fore.WHITE+'!'+Fore.GREEN+'] GOOD | {0}'.format(link))
                     with open('good_links.txt','a') as f:
                         f.write(link+'\n')
 
@@ -87,11 +96,11 @@ class Main:
                         
 
                 elif response.status_code == 404:
-                    self.PrintText('BAD',link,Fore.RED,Fore.WHITE)
+                    print(Fore.RED+'['+Fore.WHITE+'-'+Fore.RED+'] BAD | {0}'.format(link))
                     with open('bad_links.txt','a') as f:
                         f.write(link+'\n')
                 else:
-                    self.PrintText('RATELIMITED','WAITING 10 Seconds',Fore.RED,Fore.WHITE)
+                    print(Fore.RED+'['+Fore.WHITE+'-'+Fore.RED+'] RATELIMITED WAITING FOR 10 SECONDS')
                     sleep(10)
 
                 lock.release()
