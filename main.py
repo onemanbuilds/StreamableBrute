@@ -1,46 +1,37 @@
-import os
 import requests
-import random
-import sys
-import string
+from os import name,system
+from random import choice,randint
+from sys import stdout
+from string import ascii_lowercase
 from time import sleep
 from colorama import init,Fore
-from threading import Thread, Lock
+from threading import Thread, Lock,active_count
 from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 
 
 class Main:
     def clear(self):
-        if os.name == 'posix':
-            os.system('clear')
-        elif os.name in ('ce', 'nt', 'dos'):
-            os.system('cls')
+        if name == 'posix':
+            system('clear')
+        elif name in ('ce', 'nt', 'dos'):
+            system('cls')
         else:
             print("\n") * 120
 
     def SetTitle(self,title_name:str):
-        os.system("title {0}".format(title_name))
+        system("title {0}".format(title_name))
         
-
     def ReadFile(self,filename,method):
         with open(filename,method) as f:
             content = [line.strip('\n') for line in f]
             return content
 
-    def PrintText(self,info_name,text,info_color:Fore,text_color:Fore):
-        lock = Lock()
-        lock.acquire()
-        sys.stdout.flush()
-        text = text.encode('ascii','replace').decode()
-        sys.stdout.write(f'[{info_color+info_name+Fore.RESET}] '+text_color+f'{text}\n')
-        lock.release()
-
     def GetRandomProxy(self):
         proxies_file = self.ReadFile('proxies.txt','r')
         proxies = {
-            "http":"http://{0}".format(random.choice(proxies_file)),
-            "https":"https://{0}".format(random.choice(proxies_file))
+            "http":"http://{0}".format(choice(proxies_file)),
+            "https":"https://{0}".format(choice(proxies_file))
             }
         return proxies
 
@@ -60,15 +51,22 @@ class Main:
         self.ua = UserAgent()
         self.use_proxy = int(input(Fore.YELLOW+'['+Fore.WHITE+'>'+Fore.YELLOW+'] Would you like to use proxies [1] yes [0] no: '))
         self.download_video = int(input(Fore.YELLOW+'['+Fore.WHITE+'>'+Fore.YELLOW+'] Would you like to download videos [1] yes [0] no: '))
+        self.threads = int(input(Fore.YELLOW+'['+Fore.WHITE+'>'+Fore.YELLOW+'] Threads: '))
         print('')
         self.header = headers = {'User-Agent':self.ua.random}
+        self.lock = Lock()
+
+    def PrintText(self,info_name,text,info_color:Fore):
+        self.lock.acquire()
+        stdout.flush()
+        text = text.encode('ascii','replace').decode()
+        stdout.write(info_color+'['+Fore.WHITE+info_name+info_color+f'] {text}\n')
+        self.lock.release()
 
     def Scrape(self):
-        lock = Lock()
         while True:
             try:
-                lock.acquire()
-                random_end = ''.join(random.choice(string.ascii_lowercase+'0123456789') for num in range(0,random.randint(5,6)))
+                random_end = ''.join(choice(ascii_lowercase+'0123456789') for num in range(0,randint(5,6)))
                 link = 'https://streamable.com/{0}'.format(random_end)
 
                 response = ''
@@ -79,7 +77,7 @@ class Main:
                     response = requests.get(link,headers=self.header)
 
                 if response.status_code == 200:
-                    print(Fore.GREEN+'['+Fore.WHITE+'!'+Fore.GREEN+'] GOOD | {0}'.format(link))
+                    self.PrintText('!','GOOD | {0}'.format(link),Fore.GREEN)
                     with open('good_links.txt','a') as f:
                         f.write(link+'\n')
 
@@ -96,18 +94,20 @@ class Main:
                         
 
                 elif response.status_code == 404:
-                    print(Fore.RED+'['+Fore.WHITE+'-'+Fore.RED+'] BAD | {0}'.format(link))
+                    self.PrintText('-','BAD | {0}'.format(link),Fore.RED)
                     with open('bad_links.txt','a') as f:
                         f.write(link+'\n')
                 else:
-                    print(Fore.RED+'['+Fore.WHITE+'-'+Fore.RED+'] RATELIMITED WAITING FOR 10 SECONDS')
+                    self.PrintText('-','RATELIMITED WAITING FOR 10 SECONDS',Fore.RED)
                     sleep(10)
-
-                lock.release()
             except:
                 pass
             
+    def Start(self):
+        while True:
+            if active_count()<=self.threads:
+                Thread(target=self.Scrape).start()
 
 if __name__ == '__main__':
     main = Main()
-    threading = Thread(target=main.Scrape).start()
+    main.Start()
