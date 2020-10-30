@@ -2,10 +2,10 @@
  This tool bruteforces valid streamable links then downloads the video to your pc if you need.
  
 # Tool
-![](https://i.ibb.co/NypSvDt/tool.png)
+![](https://i.ibb.co/vLYn48b/streamable-brute-tool.png)
 
 # Example
-![](https://i.ibb.co/YZVv5tM/example.png)
+![](https://i.ibb.co/5kB8J5c/streamable-brute-tool-example.png)
 
 # Legal
  This was merely a speedrun to demonstrate how streamable link bruteforcers work.<br/>
