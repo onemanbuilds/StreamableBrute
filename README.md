@@ -1,5 +1,10 @@
 # StreamableBrute
  This tool bruteforces valid streamable links then downloads the video to your pc if you need.
+
+# Installation
+```
+pip3 install -r requirements.txt
+``` 
  
 # Tool
 ![](https://i.ibb.co/vLYn48b/streamable-brute-tool.png)
