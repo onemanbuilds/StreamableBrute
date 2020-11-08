@@ -6,9 +6,7 @@ from string import ascii_lowercase
 from time import sleep
 from colorama import init,Style,Fore
 from threading import Thread, Lock,active_count
-from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
-
 
 class Main:
     def clear(self):
@@ -23,9 +21,13 @@ class Main:
         system("title {0}".format(title_name))
         
     def ReadFile(self,filename,method):
-        with open(filename,method) as f:
+        with open(filename,method,encoding='utf8') as f:
             content = [line.strip('\n') for line in f]
             return content
+    
+    def GetRandomUserAgent(self):
+        useragents = self.ReadFile('useragents.txt','r')
+        return choice(useragents)
 
     def GetRandomProxy(self):
         proxies_file = self.ReadFile('proxies.txt','r')
@@ -56,10 +58,11 @@ class Main:
         self.SetTitle('One Man Builds Streamable Video Brute Tool')
         self.clear()
         self.title = Style.BRIGHT+Fore.RED+"""
-                                
-                        ____ ___ ____ ____ ____ _  _ ____ ___  _    ____    ___  ____ _  _ ___ ____ 
-                        [__   |  |__/ |___ |__| |\/| |__| |__] |    |___    |__] |__/ |  |  |  |___ 
-                        ___]  |  |  \ |___ |  | |  | |  | |__] |___ |___    |__] |  \ |__|  |  |___ 
+                                  ╔═════════════════════════════════════════════════╗
+                                    ╔═╗╔╦╗╦═╗╔═╗╔═╗╔╦╗╔═╗╔╗ ╦  ╔═╗  ╔╗ ╦═╗╦ ╦╔╦╗╔═╗
+                                    ╚═╗ ║ ╠╦╝║╣ ╠═╣║║║╠═╣╠╩╗║  ║╣   ╠╩╗╠╦╝║ ║ ║ ║╣ 
+                                    ╚═╝ ╩ ╩╚═╚═╝╩ ╩╩ ╩╩ ╩╚═╝╩═╝╚═╝  ╚═╝╩╚═╚═╝ ╩ ╚═╝
+                                  ╚═════════════════════════════════════════════════╝
                                                                                                     
                                 
         """
@@ -69,7 +72,6 @@ class Main:
         self.downloads = 0
         self.bads = 0
         self.retries = 0
-        self.ua = UserAgent()
         self.use_proxy = int(input(Style.BRIGHT+Fore.CYAN+'['+Fore.RED+'>'+Fore.CYAN+'] ['+Fore.RED+'1'+Fore.CYAN+']Proxy ['+Fore.RED+'0'+Fore.CYAN+']Proxyless: '))
         
         if self.use_proxy == 1:
@@ -78,7 +80,6 @@ class Main:
         self.download_video = int(input(Style.BRIGHT+Fore.CYAN+'['+Fore.RED+'>'+Fore.CYAN+'] ['+Fore.RED+'1'+Fore.CYAN+']Download ['+Fore.RED+'0'+Fore.CYAN+']No Download: '))
         self.threads = int(input(Style.BRIGHT+Fore.CYAN+'['+Fore.RED+'>'+Fore.CYAN+'] Threads: '))
         print('')
-        self.header = headers = {'User-Agent':self.ua.random}
         self.lock = Lock()
 
     def PrintText(self,bracket_color:Fore,text_in_bracket_color:Fore,text_in_bracket,text):
@@ -95,10 +96,14 @@ class Main:
 
             response = ''
 
+            headers = {
+                'User-Agent':self.GetRandomUserAgent()
+            }
+
             if self.use_proxy == 1:
-                response = requests.get(link,headers=self.header,proxies=self.GetRandomProxy())
+                response = requests.get(link,headers=headers,proxies=self.GetRandomProxy())
             else:
-                response = requests.get(link,headers=self.header)
+                response = requests.get(link,headers=headers)
 
             if response.status_code == 200:
                 self.PrintText(Fore.CYAN,Fore.RED,'HIT',link)
@@ -110,7 +115,7 @@ class Main:
                     soup = BeautifulSoup(response.text,'html.parser')
                     download_link = soup.find('meta',{'property':'og:video:url'})
                     download_link = download_link['content']
-                    response = requests.get(download_link,headers=self.header)
+                    response = requests.get(download_link,headers=headers)
 
                     title = soup.title.string.replace(' ','_')
 
@@ -118,7 +123,6 @@ class Main:
                         f.write(response.content)
                     
                     self.downloads += 1
-                    
 
             elif response.status_code == 404:
                 self.PrintText(Fore.RED,Fore.CYAN,'BAD',link)
@@ -128,8 +132,6 @@ class Main:
             else:
                 self.retries += 1
                 self.Scrape()
-                #self.PrintText('-','RATELIMITED WAITING FOR 10 SECONDS',Fore.RED)
-                #sleep(10)
         except:
             self.retries += 1
             self.Scrape()
