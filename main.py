@@ -165,6 +165,9 @@ class Main:
                 with open('[Data]/[Results]/good_links.txt','a') as f:
                     f.write(link+'\n')
 
+                if self.webhook_enable == 1:
+                    self.SendWebhook('Streamable Result',link,'https://cdn.discordapp.com/attachments/776819723731206164/796935218166497352/onemanbuilds_new_logo_final.png','https://pbs.twimg.com/profile_images/601124726832955393/GYp5MlPf_400x400.png',proxy,useragent)
+
                 if self.download_video == 1:
                     soup = BeautifulSoup(response.text,'html.parser')
                     download_link = soup.find('meta',{'property':'og:video:url'})
@@ -176,9 +179,6 @@ class Main:
                     with open(f'[Data]/[Results]/[Downloads]/{title}.mp4','wb') as f:
                         f.write(response.content)
                     self.downloads += 1
-
-                if self.webhook_enable == 1:
-                    self.SendWebhook('Streamable Result',link,'https://cdn.discordapp.com/attachments/776819723731206164/796935218166497352/onemanbuilds_new_logo_final.png','https://pbs.twimg.com/profile_images/601124726832955393/GYp5MlPf_400x400.png',proxy,useragent)
             else:
                 self.retries += 1
                 self.Scrape()
