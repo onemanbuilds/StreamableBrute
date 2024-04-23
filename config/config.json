@@ -1,0 +1,9 @@
+{
+    "use_proxy":1,
+    "proxy_type":2,
+    "threads":1000,
+    "amount_to_brute":-1,
+    "download_results":1,
+    "urls_path":"config/urls.txt",
+    "proxies_path":"config/proxies.txt"
+}
